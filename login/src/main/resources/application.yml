@@ -7,6 +7,20 @@ jwt:
       key: refresh12345
 
 spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/login
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        #show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 1000
+    #    open-in-view: false
   redis:
     host: localhost
     port: 6379

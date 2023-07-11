@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -25,11 +26,11 @@ public class Member implements UserDetails {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "user_email", nullable = false, length = 100, unique = true)
-    private String userEmail;
+    @Column(name = "email", nullable = false, length = 100, unique = true)
+    private String email;
 
-    @Column(name = "user_nickname", length = 15)
-    private String userNickname;
+    @Column(name = "nickname", length = 15)
+    private String nickname;
 
     @Column(name = "role", length = 10)
     @Enumerated(EnumType.STRING)
@@ -38,7 +39,6 @@ public class Member implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -54,7 +54,7 @@ public class Member implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userEmail;
+        return email;
     }
 
     @Override

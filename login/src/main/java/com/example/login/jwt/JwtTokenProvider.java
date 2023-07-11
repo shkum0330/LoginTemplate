@@ -86,16 +86,17 @@ public class JwtTokenProvider {
     // db에 저장되어 있는 token과 비교
     // db에 저장한다는 것이 jwt token을 사용한다는 강점을 상쇄시킨다.
     // db 보다는 redis를 사용하는 것이 더욱 좋다. (in-memory db기 때문에 조회속도가 빠르고 주기적으로 삭제하는 기능이 기본적으로 존재합니다.)
-//    public Boolean validateRefreshToken(String token) {
-//
-//        // 1차 토큰 검증
-//        if(!validateToken(token)) return false;
-//
-//        // DB에 저장한 토큰 비교
+    public Boolean validateRefreshToken(String token) {
+
+        // 1차 토큰 검증
+        if(!validateToken(token)) return false;
+
+        // DB에 저장한 토큰 비교
 //        Optional<RefreshToken> refreshToken = refreshTokenMapper.findByUserId(getUserId(token));
 //
 //        return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken());
-//    }
+        return null;
+    }
 
     // Refresh 토큰 유효성 검증
     public String recreationAccessToken(String userEmail, Object roles){
