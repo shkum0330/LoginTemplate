@@ -34,27 +34,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.info("info1 {}",isLogout);
             }
             // 액세스 토큰이 만료된 상황 && 리프레시 토큰 또한 존재하는 상황
-            else if (refreshToken != null) {
-                // 리프레시 토큰 검증 && 리프레시 토큰 DB에서  토큰 존재유무 확인
-                boolean isRefreshToken = jwtTokenProvider.validateRefreshToken(refreshToken);
-                // 리프레시 토큰이 유효하고 리프레시 토큰이 DB와 비교했을때 똑같다면
-                if (isRefreshToken) {
-                    // 리프레시 토큰으로 아이디 정보 가져오기
-                    String loginId = jwtTokenProvider.getUserId(refreshToken);
-
-                    // 새로운 access 토큰 발급
-                    String newAccessToken = jwtTokenProvider.createToken(loginId, "Access");
-                    // 헤더에 access 토큰 추가
-                    jwtTokenProvider.setHeaderAccessToken(response, newAccessToken);
-                    // Security context에 인증 정보 넣기
-                    setAuthentication(jwtTokenProvider.getUserId(newAccessToken));
-                }
-                // 리프레시 토큰이 만료 or 리프레시 토큰이 DB와 비교했을때 똑같지 않다면
-                else {
-                    jwtExceptionHandler(response, "RefreshToken Expired", HttpStatus.BAD_REQUEST);
-                    return;
-                }
-            }
+//            else if (refreshToken != null) {
+//                // 리프레시 토큰 검증 && 리프레시 토큰 DB에서  토큰 존재유무 확인
+//                boolean isRefreshToken = jwtTokenProvider.validateRefreshToken(refreshToken);
+//                // 리프레시 토큰이 유효하고 리프레시 토큰이 DB와 비교했을때 똑같다면
+//                if (isRefreshToken) {
+//                    // 리프레시 토큰으로 아이디 정보 가져오기
+//                    String loginId = jwtTokenProvider.getUserId(refreshToken);
+//
+//                    // 새로운 access 토큰 발급
+//                    String newAccessToken = jwtTokenProvider.createToken(loginId, "Access");
+//                    // 헤더에 access 토큰 추가
+//                    jwtTokenProvider.setHeaderAccessToken(response, newAccessToken);
+//                    // Security context에 인증 정보 넣기
+//                    setAuthentication(jwtTokenProvider.getUserId(newAccessToken));
+//                }
+//                // 리프레시 토큰이 만료 or 리프레시 토큰이 DB와 비교했을때 똑같지 않다면
+//                else {
+//                    jwtExceptionHandler(response, "RefreshToken Expired", HttpStatus.BAD_REQUEST);
+//                    return;
+//                }
+//            }
         }
         log.info("last {}",accessToken);
         filterChain.doFilter(request,response);

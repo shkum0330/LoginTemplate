@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,19 +41,33 @@ public class JwtTokenProvider {
     }
 
     // JWT 토큰 생성
-    public String createToken(String userId,String type) {
-        Claims claims = Jwts.claims().setSubject(userId); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣는다.
-//        claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
+    public Token createAccessToken(String email, List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(email); // JWT payload 에 저장되는 정보단위
+        claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
         Date now = new Date();
-        long time=type.equals("Access") ? accessTokenValidTime:refreshTokenValidTime;
-        String key=type.equals("Access") ? accessSecretKey:refreshSecretKey;
-        return Jwts.builder()
+
+        //Access Token
+        String accessToken = Jwts.builder()
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
-                .setExpiration(new Date(now.getTime() + time)) // set Expire Time
-                .signWith(SignatureAlgorithm.HS256, key)  // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // set Expire Time
+                .signWith(SignatureAlgorithm.HS256, accessSecretKey)  // 사용할 암호화 알고리즘과
+                // signature 에 들어갈 secret값 세팅
                 .compact();
+
+        //Refresh Token
+        String refreshToken =  Jwts.builder()
+                .setClaims(claims) // 정보 저장
+                .setIssuedAt(now) // 토큰 발행 시간 정보
+                .setExpiration(new Date(now.getTime() + refreshTokenValidTime)) // set Expire Time
+                .signWith(SignatureAlgorithm.HS256, refreshSecretKey)  // 사용할 암호화 알고리즘과
+                // signature 에 들어갈 secret값 세팅
+                .compact();
+
+
+        return Token.builder().accessToken(accessToken).refreshToken(refreshToken).key(email).build();
     }
+
 
     // JWT 토큰에서 인증 정보 조회
     public Authentication getAuthentication(String userId) {
@@ -86,22 +101,33 @@ public class JwtTokenProvider {
     // db에 저장되어 있는 token과 비교
     // db에 저장한다는 것이 jwt token을 사용한다는 강점을 상쇄시킨다.
     // db 보다는 redis를 사용하는 것이 더욱 좋다. (in-memory db기 때문에 조회속도가 빠르고 주기적으로 삭제하는 기능이 기본적으로 존재합니다.)
-    public Boolean validateRefreshToken(String token) {
+    public String validateRefreshToken(RefreshToken refreshTokenObj) {
 
-        // 1차 토큰 검증
-        if(!validateToken(token)) return false;
+        // refresh 객체에서 refreshToken 추출
+        String refreshToken = refreshTokenObj.getRefreshToken();
 
-        // DB에 저장한 토큰 비교
-//        Optional<RefreshToken> refreshToken = refreshTokenMapper.findByUserId(getUserId(token));
-//
-//        return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken());
+        try {
+            // 검증
+            Jws<Claims> claims = Jwts.parser().setSigningKey(refreshSecretKey).parseClaimsJws(refreshToken);
+
+            //refresh 토큰의 만료시간이 지나지 않았을 경우, 새로운 access 토큰을 생성합니다.
+            if (!claims.getBody().getExpiration().before(new Date())) {
+                return recreationAccessToken(claims.getBody().get("sub").toString(), claims.getBody().get("roles"));
+            }
+        }catch (Exception e) {
+
+            //refresh 토큰이 만료되었을 경우, 로그인이 필요합니다.
+            return null;
+
+        }
+
         return null;
     }
 
     // Refresh 토큰 유효성 검증
-    public String recreationAccessToken(String userEmail, Object roles){
+    public String recreationAccessToken(String email, Object roles){
 
-        Claims claims = Jwts.claims().setSubject(userEmail); // JWT payload 에 저장되는 정보단위
+        Claims claims = Jwts.claims().setSubject(email); // JWT payload 에 저장되는 정보단위
         claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
         Date now = new Date();
 
@@ -110,7 +136,8 @@ public class JwtTokenProvider {
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // set Expire Time
-                .signWith(SignatureAlgorithm.HS256, accessSecretKey)  // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
+                .signWith(SignatureAlgorithm.HS256, accessSecretKey)  // 사용할 암호화 알고리즘과
+                // signature 에 들어갈 secret값 세팅
                 .compact();
 
         return accessToken;

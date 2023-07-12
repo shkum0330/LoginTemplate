@@ -9,5 +9,4 @@ public class TestContrioller {
     public String test(){
         return "<h1>test 통과</h1>";
     }
-
 }
