@@ -23,12 +23,13 @@ public class MemberController {
     // 로그인
     @PostMapping("/login")
     public Token login(@RequestBody Map<String, String> memberMap) {
-        log.info("user email = {}", memberMap.get("userEmail"));
-        Member member = memberRepository.findByUserEmail(memberMap.get("userEmail"))
+        log.info("user email = {}", memberMap.get("email"));
+        Member member = memberRepository.findByUserEmail(memberMap.get("email"))
                 .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
 
         Token tokenDto = jwtTokenProvider.createAccessToken(member.getUsername(), member.getRoles());
         log.info("roles = {}", member.getRoles());
+        log.info("token = {}",tokenDto);
         jwtService.login(tokenDto);
         return tokenDto;
     }
