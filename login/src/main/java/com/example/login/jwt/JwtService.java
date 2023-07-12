@@ -18,7 +18,9 @@ public class JwtService {
 
     @Transactional
     public void login(Token tokenDto){
+        log.info("tokenDto: {}",tokenDto);
         RefreshToken refreshToken = RefreshToken.builder().keyEmail(tokenDto.getKey()).refreshToken(tokenDto.getRefreshToken()).build();
+        log.info("refreshToken: {}",refreshToken);
         String loginUserEmail = refreshToken.getKeyEmail();
         if(refreshTokenRepository.existsByKeyEmail(loginUserEmail)){
             log.info("기존의 존재하는 refresh 토큰 삭제");

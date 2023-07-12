@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, IOException {
         String accessToken = jwtTokenProvider.resolveToken(request,"Access");
         String refreshToken = jwtTokenProvider.resolveToken(request,"Refresh");
-        log.info("{}",accessToken);
+        log.info("accessToken: {}",accessToken);
         if(accessToken != null) {
             // 액세스 토큰이 유효하다면 setAuthentication를 통해 security context에 인증 정보저장
             String isLogout = (String)redisTemplate.opsForValue().get(accessToken);

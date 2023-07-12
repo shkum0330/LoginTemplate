@@ -16,12 +16,12 @@ import javax.persistence.*;
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "REFRESH_TOKEN_ID", nullable = false)
+    @Column(name = "refresh_token_id", nullable = false)
     private Long refreshTokenId;
 
-    @Column(name = "REFRESH_TOKEN", nullable = false)
+    @Column(name = "refresh_token", nullable = false)
     private String refreshToken;
 
-    @Column(name = "KEY_EMAIL", nullable = false)
+    @Column(name = "key_email", nullable = false)
     private String keyEmail;
 }
