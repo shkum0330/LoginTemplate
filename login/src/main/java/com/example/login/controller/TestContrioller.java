@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestContrioller {
     @PostMapping("/test")
     public String test(){
-        return "<h1>test 통과</h1>";
+        return "success";
     }
 }

@@ -2,9 +2,10 @@
 jwt:
   secret:
     access:
-      key: access12345
+      key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA1XkHa
     refresh:
-      key: refresh12345
+      key: VlwEyVBsYt9V7zq71TejMnVUyzblYcfPQye08f7MGVA9XkHa
+
 
 spring:
   datasource:

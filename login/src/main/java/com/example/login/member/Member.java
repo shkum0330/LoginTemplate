@@ -1,9 +1,6 @@
 package com.example.login.member;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,28 +11,30 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Builder
-@Data
+@Getter
 @Entity
 @Table(name = "member")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Member implements UserDetails {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "user_id")
-    private Long userId;
-
-    @Column(name = "email", nullable = false, length = 100, unique = true)
+    @Column(updatable = false, unique = true, nullable = false)
     private String email;
-    @Column(name = "password", nullable = false, length = 100)
+    @Column(nullable = false)
     private String password;
-    @Column(name = "nickname", length = 15)
-    private String nickname;
-
-    @Column(name = "role", length = 10)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public Member(String email, String password, Role role) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
@@ -49,13 +48,13 @@ public class Member implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return null;
+    public String getUsername() {
+        return email;
     }
 
     @Override
-    public String getUsername() {
-        return email;
+    public String getPassword() {
+        return password;
     }
 
     @Override
