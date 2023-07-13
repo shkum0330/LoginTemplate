@@ -29,12 +29,14 @@ public class InitDB {
         private final EntityManager em;
 
         public void dbInit1() {
-            Member member1 = new Member("kumsh0330@naver.com","1234",Role.USER);
+            Member member1 = new Member("kumsh0330@naver.com","1234");
+            member1.getRoles().add(Role.USER.name());
             em.persist(member1);
         }
 
         public void dbInit2() {
-            Member member2 = new Member("shkum0330@gmail.com","1234",Role.ADMIN);
+            Member member2 = new Member("shkum0330@gmail.com","1234");
+            member2.getRoles().add(Role.ADMIN.name());
             em.persist(member2);
         }
     }

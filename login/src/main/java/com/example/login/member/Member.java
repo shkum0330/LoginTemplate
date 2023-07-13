@@ -26,19 +26,15 @@ public class Member implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    public Member(String email, String password, Role role) {
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+    public Member(String email, String password) {
+        this.email = email;
+        this.password = password;
+        this.roles=new ArrayList<>();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -61,9 +61,10 @@ public class JwtTokenProvider {
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
     public Authentication getAuthentication(String accessToken) {
+        log.info("accessToken = {}",accessToken);
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
-
+        log.info("claims = {}",claims);
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
