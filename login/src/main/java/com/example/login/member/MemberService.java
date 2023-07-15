@@ -3,12 +3,18 @@ package com.example.login.member;
 import com.example.login.jwt.JwtTokenProvider;
 import com.example.login.jwt.TokenInfo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.TimeUnit;
+
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -16,6 +22,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate redisTemplate;
+
 
     @Transactional
     public TokenInfo login(String memberId, String password) {
@@ -32,4 +40,5 @@ public class MemberService {
 
         return tokenInfo;
     }
+
 }

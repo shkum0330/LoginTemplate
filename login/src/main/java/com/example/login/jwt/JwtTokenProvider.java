@@ -1,5 +1,6 @@
 package com.example.login.jwt;
 
+import com.example.login.config.RedisUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -23,8 +24,9 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     private final Key key;
-
-    public JwtTokenProvider(@Value("${jwt.secret.access.key}") String secretKey) {
+    private final RedisUtil redisUtil;
+    public JwtTokenProvider(@Value("${jwt.secret.access.key}") String secretKey, RedisUtil redisUtil) {
+        this.redisUtil = redisUtil;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -38,7 +40,7 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 86400000);
+        Date accessTokenExpiresIn = new Date(now + 1800000);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -84,6 +86,10 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            if (redisUtil.hasKeyBlackList(token)){
+                // TODO 에러 발생시키는 부분 수정
+                throw new RuntimeException("로그아웃했습니다.");
+            }
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
@@ -103,5 +109,12 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+    public Long getExpiration(String accessToken) {
+        // accessToken 남은 유효시간
+        Date expiration = Jwts.parser().setSigningKey(key).parseClaimsJws(accessToken).getBody().getExpiration();
+        // 현재 시간
+        Long now = new Date().getTime();
+        return (expiration.getTime() - now);
     }
 }

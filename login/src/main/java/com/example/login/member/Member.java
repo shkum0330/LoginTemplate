@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -22,6 +23,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class Member implements UserDetails {
 
     @Id
+    @Column(name="id",updatable = false, unique = true, nullable = false)
+    private String memberId;
     @Column(updatable = false, unique = true, nullable = false)
     private String email;
     @Column(nullable = false)
@@ -31,6 +34,7 @@ public class Member implements UserDetails {
     @Builder.Default
     private List<String> roles = new ArrayList<>();
     public Member(String email, String password) {
+        this.memberId= UUID.randomUUID().toString();
         this.email = email;
         this.password = password;
         this.roles=new ArrayList<>();
